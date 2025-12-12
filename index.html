@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/logosmart.png">
+    <title>SPIRE // SHOP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            font-size: 16px;
+            --header-height: 8vh;
+            --footer-height: 6vh;
+            --content-padding: 7vw;
+            --grid-gap: 2vw;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #FCFCFC;
+            display: flex;
+            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            min-height: 4rem;
+            background-color: #ffffff00;
+            padding: 5vh 12vw;
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: var(--grid-gap);
+            align-items: center;
+            z-index: 1000;
+            isolation: isolate;
+            mix-blend-mode: difference;
+        }
+
+        .header-left {
+            grid-column: 1 / 4;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: var(--grid-gap);
+            align-items: center;
+        }
+
+        .header-right {
+            grid-column: 6;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .header-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+            font-weight: 500;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            font-size: clamp(1.6rem, 2.2vw, 3.2rem);
+            text-align: left;
+        }
+
+        .header-item:not(.clock) {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            padding: 0.15em 0.3em;
+            margin: -0.15em -0.3em;
+        }
+
+        .header-left .header-item:not(.clock) {
+            padding: 0.15em 0.25em 0.15em 0.3em;
+            margin: -0.15em 2.6em -0.15em -0.3em;
+        }
+
+        .header-item:not(.clock)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .header-item:not(.clock):hover::before {
+            opacity: 1;
+        }
+
+        .header-item:not(.clock):hover {
+            color: #000000;
+        }
+
+        .header-left .header-item {
+            text-align: left;
+        }
+
+        .header-item.clock {
+            font-variant-numeric: tabular-nums;
+            font-size: 1.8vw;
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .header-item.clock .time-segment {
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .header-item.clock .cover-rectangle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 2;
+            display: block;
+        }
+
+        .header-item.clock .time-segment.hours .cover-rectangle {
+            animation: revealClockFirst 0.01s forwards;
+        }
+
+        .header-item.clock .time-segment.minutes .cover-rectangle {
+            animation: revealClockSecond 0.01s forwards;
+        }
+
+        .header-item.clock .time-segment.seconds .cover-rectangle {
+            animation: revealClockThird 0.01s forwards;
+        }
+
+        @keyframes revealClockFirst {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealClockSecond {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealClockThird {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        main {
+            flex: 1;
+            padding: 2vh 12vw;
+            padding-top: calc(var(--header-height) + 4vh);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-x: auto;
+        }
+
+        footer {
+            height: var(--footer-height);
+            min-height: 3rem;
+            background-color: #FCFCFC;
+            padding: 0 var(--content-padding);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: var(--grid-gap);
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+            margin-top: 1.5vw;
+        }
+
+        .grid-item {
+            aspect-ratio: 163 / 204;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+            color: #666;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .grid-item-image-wrapper {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translateY(100%);
+            transition: transform 0.7s cubic-bezier(0.3, 0, 0.3, 1);
+        }
+
+        .grid-item img.revealed {
+            transform: translateY(0);
+        }
+
+        .grid-item:hover .grid-item-image-wrapper {
+            transform: scale(1.05);
+        }
+
+        .grid-item-number {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+            color: #FFFFFF;
+            font-weight: 100;
+            letter-spacing: 0.05em;
+            mix-blend-mode: exclusion;
+            font-size: clamp(0.875rem, 1vw, 1.5rem);
+            padding: clamp(0rem, 1vw, 0rem) clamp(0rem, 2vw, 0rem);
+            pointer-events: none;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.1em;
+        }
+
+        .grid-item-number .digit {
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .grid-item-number .cover-rectangle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 2;
+            display: block;
+        }
+
+        .grid-item-number .digit:first-child .cover-rectangle {
+            animation: revealFirst 0.01s forwards;
+        }
+
+        .grid-item-number .digit:last-child .cover-rectangle {
+            animation: revealSecond 0.01s forwards;
+        }
+
+        @keyframes revealFirst {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealSecond {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        .crosshair {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: #000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .crosshair::before {
+            width: clamp(6px, 0.8vw, 14px);
+            height: 0.2px;
+        }
+
+        .crosshair::after {
+            width: 0.2px;
+            height: clamp(6px, 0.8vw, 14px);
+        }
+
+        /* Crosshairs will be positioned by JavaScript */
+
+        /* Tablet styles */
+        @media (max-width: 1024px) {
+            :root {
+                --content-padding: 4vw;
+                --grid-gap: 2.5vw;
+            }
+
+            header {
+                padding: 2vw 4vw;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            .header-left {
+                grid-column: 1 / 4;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .header-right {
+                grid-column: 4;
+            }
+
+            main {
+                padding-left: 4vw;
+                padding-right: 4vw;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            :root {
+                --header-height: 6vh;
+                --footer-height: 5vh;
+                --content-padding: 5vw;
+                --grid-gap: 3vw;
+            }
+
+            header {
+                padding: 0 5vw;
+                grid-template-columns: 1fr auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-left {
+                grid-column: unset;
+                display: flex;
+                flex-direction: row;
+                gap: 5vw;
+                align-items: center;
+            }
+
+            .header-item.clock {
+                display: none;
+            }
+
+            .header-right {
+                grid-column: unset;
+            }
+
+            main {
+                padding-left: 5vw;
+                padding-right: 5vw;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+        /* Small mobile styles */
+        @media (max-width: 480px) {
+            :root {
+                --content-padding: 4vw;
+                --grid-gap: 4vw;
+            }
+
+            header {
+                padding: 0 4vw;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-left {
+                display: flex;
+                flex-direction: row;
+                gap: 6vw;
+                align-items: center;
+            }
+
+            .header-item.clock {
+                display: none;
+            }
+
+            main {
+                padding-left: 4vw;
+                padding-right: 4vw;
+            }
+        }
+
+        /* Large screens */
+        @media (min-width: 1400px) {
+            :root {
+                --content-padding: 8vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="header-item">spire</div>
+            <div class="header-item">shop</div>
+            <div class="header-item clock" id="clock">00:00:00</div>
+        </div>
+        <div class="header-right">
+            <div class="header-item">bag</div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="grid-container">
+            <div class="grid-item"><img src="images/p1.png" alt="p1"><span class="grid-item-number">01</span></div>
+            <div class="grid-item"><img src="images/p2.png" alt="p2"><span class="grid-item-number">02</span></div>
+            <div class="grid-item"><img src="images/p3.png" alt="p3"><span class="grid-item-number">03</span></div>
+            <div class="grid-item"><img src="images/p4.png" alt="p4"><span class="grid-item-number">04</span></div>
+            <div class="grid-item"><img src="images/p5.png" alt="p5"><span class="grid-item-number">05</span></div>
+            <div class="grid-item"><img src="images/p6.png" alt="p6"><span class="grid-item-number">06</span></div>
+            <div class="grid-item"><img src="images/p7.png" alt="p7"><span class="grid-item-number">07</span></div>
+            <div class="grid-item"><img src="images/p8.png" alt="p8"><span class="grid-item-number">08</span></div>
+            <div class="grid-item"><img src="images/p9.png" alt="p9"><span class="grid-item-number">09</span></div>
+            <div class="grid-item"><img src="images/p10.png" alt="p10"><span class="grid-item-number">10</span></div>
+            <div class="grid-item"><img src="images/p11.png" alt="p11"><span class="grid-item-number">11</span></div>
+            <div class="crosshair"></div>
+            <div class="crosshair"></div>
+            <div class="crosshair"></div>
+            <div class="crosshair"></div>
+            <div class="crosshair"></div>
+        </div>
+    </main>
+    
+    <footer>
+        <!-- Footer content goes here -->
+    </footer>
+
+    <script> 
+        function setupClockReveal() {
+            const clockElement = document.getElementById('clock');
+            if (!clockElement) return;
+
+            // Delay between each segment in seconds
+            const firstSegmentDelay = 0.08;
+            const secondSegmentDelay = 0.18;
+            const thirdSegmentDelay = 0.40;
+
+
+            // Set up the structure once
+            clockElement.innerHTML = '';
+            
+            const now = new Date();
+            const initialHours = String(now.getHours()).padStart(2, '0');
+            const initialMinutes = String(now.getMinutes()).padStart(2, '0');
+            const initialSeconds = String(now.getSeconds()).padStart(2, '0');
+            
+            // Create HH segment (hours)
+            const hoursSpan = document.createElement('span');
+            hoursSpan.className = 'time-segment hours';
+            hoursSpan.textContent = initialHours;
+            const hoursCover = document.createElement('span');
+            hoursCover.className = 'cover-rectangle';
+            hoursCover.style.animationDelay = `${firstSegmentDelay}s`;
+            hoursSpan.appendChild(hoursCover);
+            clockElement.appendChild(hoursSpan);
+            
+            // Add colon
+            clockElement.appendChild(document.createTextNode(':'));
+            
+            // Create MM segment
+            const minutesSpan = document.createElement('span');
+            minutesSpan.className = 'time-segment minutes';
+            minutesSpan.textContent = initialMinutes;
+            const minutesCover = document.createElement('span');
+            minutesCover.className = 'cover-rectangle';
+            minutesCover.style.animationDelay = `${secondSegmentDelay}s`;
+            minutesSpan.appendChild(minutesCover);
+            clockElement.appendChild(minutesSpan);
+            
+            // Add colon
+            clockElement.appendChild(document.createTextNode(':'));
+            
+            // Create SS segment
+            const secondsSpan = document.createElement('span');
+            secondsSpan.className = 'time-segment seconds';
+            secondsSpan.textContent = initialSeconds;
+            const secondsCover = document.createElement('span');
+            secondsCover.className = 'cover-rectangle';
+            secondsCover.style.animationDelay = `${thirdSegmentDelay}s`;
+            secondsSpan.appendChild(secondsCover);
+            clockElement.appendChild(secondsSpan);
+
+            // Function to update only the text content
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                
+                // Update text content without rebuilding structure
+                hoursSpan.textContent = hours;
+                minutesSpan.textContent = minutes;
+                secondsSpan.textContent = seconds;
+            }
+
+            // Update clock every second (don't call immediately since we already set initial values)
+            setInterval(updateClock, 1000);
+        }
+
+        // Setup clock reveal on page load
+        window.addEventListener('load', setupClockReveal);
+        setupClockReveal();
+
+        // Split numbers into digits and add cover rectangles with stagger delays
+        function setupNumberReveal() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            const staggerDelay = 0.08; // Delay between each grid item in seconds
+            const firstDigitDelay = 0.2; // Initial delay before first digit reveals
+            const secondDigitDelay = 0.4; // Initial delay before second digit reveals
+            
+            gridItems.forEach((gridItem, itemIndex) => {
+                const numberElement = gridItem.querySelector('.grid-item-number');
+                if (numberElement) {
+                    const text = numberElement.textContent.trim();
+                    if (text.length === 2) {
+                        const digits = text.split('');
+                        numberElement.innerHTML = '';
+                        
+                        // Calculate stagger delay for this item
+                        const itemStagger = itemIndex * staggerDelay;
+                        
+                        digits.forEach((digit, digitIndex) => {
+                            const digitSpan = document.createElement('span');
+                            digitSpan.className = 'digit';
+                            digitSpan.textContent = digit;
+                            const coverRect = document.createElement('span');
+                            coverRect.className = 'cover-rectangle';
+                            
+                            // Apply stagger delay to animations
+                            if (digitIndex === 0) {
+                                // First digit
+                                coverRect.style.animationDelay = `${firstDigitDelay + itemStagger}s`;
+                            } else {
+                                // Second digit
+                                coverRect.style.animationDelay = `${secondDigitDelay + itemStagger}s`;
+                            }
+                            
+                            digitSpan.appendChild(coverRect);
+                            numberElement.appendChild(digitSpan);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Setup number reveal on page load
+        window.addEventListener('load', setupNumberReveal);
+        setupNumberReveal();
+
+        // Wrap images in a div for scaling
+        function wrapImages() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            gridItems.forEach(gridItem => {
+                const img = gridItem.querySelector('img');
+                if (img && !img.parentElement.classList.contains('grid-item-image-wrapper')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'grid-item-image-wrapper';
+                    img.parentNode.insertBefore(wrapper, img);
+                    wrapper.appendChild(img);
+                }
+            });
+        }
+
+        // Image reveal animation with stagger effect
+        function revealImages() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            const staggerDelay = 60; // Delay between each image in milliseconds (120ms = between 100-150ms)
+            
+            gridItems.forEach((gridItem, index) => {
+                const img = gridItem.querySelector('img');
+                if (img) {
+                    setTimeout(() => {
+                        img.classList.add('revealed');
+                    }, index * staggerDelay);
+                }
+            });
+        }
+
+        // Wrap images first, then trigger image reveal
+        wrapImages();
+        window.addEventListener('load', () => {
+            wrapImages();
+            revealImages();
+        });
+        revealImages();
+
+        // Position crosshairs at grid intersections
+        function positionCrosshairs() {
+            const gridContainer = document.querySelector('.grid-container');
+            const gridItems = document.querySelectorAll('.grid-item');
+            const crosshairs = document.querySelectorAll('.crosshair');
+            
+            if (gridItems.length === 0 || crosshairs.length === 0) return;
+
+            const containerRect = gridContainer.getBoundingClientRect();
+            
+            // Find row breaks by checking y positions
+            const itemPositions = Array.from(gridItems).map(item => {
+                const rect = item.getBoundingClientRect();
+                return {
+                    x: rect.left - containerRect.left,
+                    y: rect.top - containerRect.top,
+                    width: rect.width,
+                    height: rect.height
+                };
+            });
+            
+            // Group items by row (same y position, with tolerance)
+            const rows = [];
+            let currentRow = [itemPositions[0]];
+            for (let i = 1; i < itemPositions.length; i++) {
+                if (Math.abs(itemPositions[i].y - currentRow[0].y) < 10) {
+                    currentRow.push(itemPositions[i]);
+                } else {
+                    rows.push(currentRow);
+                    currentRow = [itemPositions[i]];
+                }
+            }
+            if (currentRow.length > 0) {
+                rows.push(currentRow);
+            }
+            
+            // Position crosshairs at intersections between rows
+            if (rows.length >= 2) {
+                const intersections = [];
+                
+                // Check each pair of consecutive rows
+                for (let rowIdx = 0; rowIdx < rows.length - 1; rowIdx++) {
+                    const topRow = rows[rowIdx];
+                    const bottomRow = rows[rowIdx + 1];
+                    
+                    // Find intersections where 4 items meet (between columns)
+                    for (let i = 0; i < Math.min(topRow.length, bottomRow.length) - 1; i++) {
+                        const topLeft = topRow[i];
+                        const topRight = topRow[i + 1];
+                        const bottomLeft = bottomRow[i];
+                        const bottomRight = bottomRow[i + 1];
+                        
+                        if (topLeft && topRight && bottomLeft && bottomRight) {
+                            // Calculate intersection point at the center of the gap
+                            const x = (topLeft.x + topLeft.width + topRight.x) / 2;
+                            const y = (topLeft.y + topLeft.height + bottomLeft.y) / 2;
+                            intersections.push({ x, y });
+                        }
+                    }
+                }
+                
+                // Position crosshairs
+                intersections.forEach((intersection, index) => {
+                    if (crosshairs[index]) {
+                        crosshairs[index].style.left = `${intersection.x}px`;
+                        crosshairs[index].style.top = `${intersection.y}px`;
+                        crosshairs[index].style.display = 'block';
+                    }
+                });
+                
+                // Hide unused crosshairs
+                for (let i = intersections.length; i < crosshairs.length; i++) {
+                    crosshairs[i].style.display = 'none';
+                }
+            } else {
+                // Hide all crosshairs if we don't have enough rows
+                crosshairs.forEach(crosshair => {
+                    crosshair.style.display = 'none';
+                });
+            }
+        }
+
+        // Position crosshairs on load and resize
+        window.addEventListener('load', positionCrosshairs);
+        window.addEventListener('resize', positionCrosshairs);
+        
+        // Also position after a short delay to ensure layout is complete
+        setTimeout(positionCrosshairs, 100);
+
+        // Handle image switching on hover (p1 -> p1a, p2 -> p2a, etc.)
+        function setupImageHover() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            
+            gridItems.forEach(gridItem => {
+                const img = gridItem.querySelector('img');
+                if (!img) return;
+                
+                const originalSrc = img.src;
+                // Extract the base name (e.g., "p1" from "images/p1.png")
+                const srcMatch = originalSrc.match(/(images\/p\d+)(\.\w+)$/);
+                if (!srcMatch) return;
+                
+                const baseName = srcMatch[1]; // e.g., "images/p1"
+                const extension = srcMatch[2]; // e.g., ".png"
+                const alternateSrc = baseName + 'a' + extension; // e.g., "images/p1a.png"
+                
+                // Store original src in data attribute
+                img.dataset.originalSrc = originalSrc;
+                img.dataset.alternateSrc = alternateSrc;
+                
+                // On hover, switch to alternate image
+                gridItem.addEventListener('mouseenter', () => {
+                    img.src = alternateSrc;
+                });
+                
+                // On mouse leave, switch back to original
+                gridItem.addEventListener('mouseleave', () => {
+                    img.src = originalSrc;
+                });
+            });
+        }
+
+        // Setup image hover after images are loaded
+        window.addEventListener('load', setupImageHover);
+        setupImageHover();
+    </script>
+</body>
+</html>
+
