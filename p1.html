@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/logosmart.png">
+    <title>SPIRE // 01 memory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            font-size: 16px;
+            --header-height: 8vh;
+            --content-padding: 7vw;
+            --grid-gap: 2vw;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #FCFCFC;
+            display: flex;
+            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            min-height: 4rem;
+            background-color: #ffffff00;
+            padding: 5vh 12vw;
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: var(--grid-gap);
+            align-items: center;
+            z-index: 1000;
+            isolation: isolate;
+            mix-blend-mode: difference;
+        }
+
+        .header-left {
+            grid-column: 1 / 4;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: var(--grid-gap);
+            align-items: center;
+        }
+
+        .header-right {
+            grid-column: 6;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .header-item {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+            font-weight: 500;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            font-size: clamp(1.6rem, 2.2vw, 3.2rem);
+            text-align: left;
+        }
+
+        .header-item:not(.clock):not(.title) {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            padding: 0.15em 0.3em;
+            margin: -0.15em -0.3em;
+        }
+
+        .header-left .header-item:not(.clock):not(.title) {
+            padding: 0.15em 0.25em 0.15em 0.3em;
+            margin: -0.15em 2.6em -0.15em -0.3em;
+        }
+
+        .header-item:not(.clock):not(.title)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .header-item:not(.clock):not(.title):hover::before,
+        .header-item:not(.clock):not(.title).active::before {
+            opacity: 1;
+        }
+
+        .header-item:not(.clock):not(.title):hover,
+        .header-item:not(.clock):not(.title).active {
+            color: #000000;
+        }
+
+        .header-item.clock {
+            font-variant-numeric: tabular-nums;
+            font-size: 1.8vw;
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .header-item.clock .time-segment {
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .header-item.clock .cover-rectangle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 2;
+            display: block;
+        }
+
+        .header-item.clock .time-segment.hours .cover-rectangle {
+            animation: revealClockFirst 0.01s forwards;
+        }
+
+        .header-item.clock .time-segment.minutes .cover-rectangle {
+            animation: revealClockSecond 0.01s forwards;
+        }
+
+        .header-item.clock .time-segment.seconds .cover-rectangle {
+            animation: revealClockThird 0.01s forwards;
+        }
+
+        .header-item.title {
+            font-variant-numeric: tabular-nums;
+            font-size: 1.8vw;
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .header-item.title .word-segment {
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .header-item.title .word-segment:not(:last-child) {
+            margin-right: 0.15em;
+        }
+
+        .header-item.title .cover-rectangle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 2;
+            display: block;
+        }
+
+        .header-item.title .word-segment.word-1 .cover-rectangle {
+            animation: revealTitleFirst 0.01s forwards;
+        }
+
+        .header-item.title .word-segment.word-2 .cover-rectangle {
+            animation: revealTitleSecond 0.01s forwards;
+        }
+
+        .header-item.title .word-segment.word-3 .cover-rectangle {
+            animation: revealTitleThird 0.01s forwards;
+        }
+
+        @keyframes revealClockFirst {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealClockSecond {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealClockThird {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealTitleFirst {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealTitleSecond {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        @keyframes revealTitleThird {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        main {
+            flex: 1;
+            padding: 2vh 12vw;
+            padding-top: calc(var(--header-height) + 4vh);
+            display: flex;
+            flex-direction: column;
+            gap: 4vh;
+        }
+
+        .product-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2vw;
+            width: 100%;
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 163 / 204;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-details-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2vw;
+            width: 100%;
+            position: relative;
+            align-items: start;
+        }
+
+        .product-info {
+            grid-column: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+            position: relative;
+            align-self: start;
+        }
+
+        .product-name-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: clamp(1.6rem, 1.8vw, 3.2rem);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+
+        .product-name {
+            color: #000;
+        }
+
+        .product-price {
+            color: #000;
+        }
+
+        .product-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2vw;
+            width: 100%;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 1.5vw;
+            font-size: clamp(1rem, 1.5vw, 1.5rem);
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+        }
+
+        .quantity-btn {
+            background: none;
+            border: none;
+            font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+            cursor: pointer;
+            color: #000;
+            padding: 0;
+            line-height: 1;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+        }
+
+        .quantity-value {
+            font-size: clamp(1rem, 1.5vw, 1.5rem);
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+        }
+
+        .size-selector {
+            display: flex;
+            gap: 1vw;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .size-option {
+            font-size: clamp(1rem, 1.5vw, 1.5rem);
+            padding: 0.5em 0.5em;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            color: #000;
+            transition: none;
+        }
+
+        .size-option:hover {
+            border: 1px solid #000;
+        }
+
+        .size-option.selected {
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+        }
+
+        .add-to-bag {
+            margin-top: 1vh;
+            position: relative;
+            display: inline-block;
+            padding: 0.15em 0.3em;
+            margin: -0.15em -0.3em;
+            background: transparent;
+            color: #000;
+            border: none;
+            font-size: clamp(1.6rem, 1.8vw, 3.2rem);
+            font-weight: 500;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+            letter-spacing: -0.03em;
+            cursor: pointer;
+            text-align: left;
+            width: fit-content;
+        }
+
+        .add-to-bag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .add-to-bag:hover::before {
+            opacity: 1;
+        }
+
+        .add-to-bag:hover {
+            color: #fff;
+        }
+
+
+        .product-caption {
+            margin-top: 2vh;
+            width: 100%;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-weight: 200;
+            font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+            line-height: 1.5;
+            color: #000;
+            text-align: left;
+        }
+
+        .product-caption p {
+            margin-bottom: 0.8em;
+        }
+
+        .product-caption p:last-child {
+            margin-bottom: 0;
+        }
+
+        .product-detail-description {
+            margin-top: 2vh;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-weight: 100;
+            font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+            line-height: 1.5;
+            color: #000;
+            text-align: right;
+        }
+
+        /* Tablet styles */
+        @media (max-width: 1024px) {
+            :root {
+                --content-padding: 4vw;
+                --grid-gap: 2.5vw;
+            }
+
+            header {
+                padding: 2vw 4vw;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            .header-left {
+                grid-column: 1 / 4;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .header-right {
+                grid-column: 4;
+            }
+
+            main {
+                padding-left: 4vw;
+                padding-right: 4vw;
+            }
+
+            .product-images {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2.5vw;
+            }
+
+            .product-details-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2.5vw;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            :root {
+                --header-height: 6vh;
+                --content-padding: 5vw;
+                --grid-gap: 3vw;
+            }
+
+            header {
+                padding: 0 5vw;
+                grid-template-columns: 1fr auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-left {
+                grid-column: unset;
+                display: flex;
+                flex-direction: row;
+                gap: 5vw;
+                align-items: center;
+            }
+
+            .header-item.clock,
+            .header-item.title {
+                display: none;
+            }
+
+            .header-right {
+                grid-column: unset;
+            }
+
+            main {
+                padding-left: 5vw;
+                padding-right: 5vw;
+            }
+
+            .product-images {
+                grid-template-columns: 1fr;
+                gap: 3vw;
+            }
+
+            .product-details-container {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        /* Small mobile styles */
+        @media (max-width: 480px) {
+            :root {
+                --content-padding: 4vw;
+                --grid-gap: 4vw;
+            }
+
+            header {
+                padding: 0 4vw;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header-left {
+                display: flex;
+                flex-direction: row;
+                gap: 6vw;
+                align-items: center;
+            }
+
+            .header-item.clock,
+            .header-item.title {
+                display: none;
+            }
+
+            main {
+                padding-left: 4vw;
+                padding-right: 4vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="product-images">
+            <div class="product-image">
+                <img src="images/p1.png" alt="Product front">
+            </div>
+            <div class="product-image">
+                <img src="images/p1b.png" alt="Product back">
+            </div>
+            <div class="product-image">
+                <img src="images/p1a.png" alt="Product model">
+            </div>
+        </div>
+
+        <div class="product-details-container">
+            <div class="product-info">
+                <div class="product-name-price">
+                    <span class="product-name">01 memory</span>
+                    <span class="product-price">$80</span>
+                </div>
+                <div class="product-controls">
+                    <div class="quantity-selector">
+                        <button class="quantity-btn" id="decrease-qty">−</button>
+                        <span class="quantity-value" id="quantity">1</span>
+                        <button class="quantity-btn" id="increase-qty">+</button>
+                    </div>
+                    <div class="size-selector">
+                        <button class="size-option">L</button>
+                        <button class="size-option selected">XL</button>
+                    </div>
+                </div>
+                <button class="add-to-bag">add to bag</button>
+                <div class="product-caption">
+                    <p>are you trapped in a memory butterflies metamorphosis caccoons etc becoming a better version of yourself</p>
+                    
+                </div>
+                <div class="product-detail-description">
+                    <p>heavyweight japanese denim hand-made embroidery acrylic print</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="header.js"></script>
+    <script> 
+        // Quantity controls
+        let quantity = 1;
+        const quantityDisplay = document.getElementById('quantity');
+        const decreaseBtn = document.getElementById('decrease-qty');
+        const increaseBtn = document.getElementById('increase-qty');
+
+        decreaseBtn.addEventListener('click', () => {
+            if (quantity > 1) {
+                quantity--;
+                quantityDisplay.textContent = quantity;
+            }
+        });
+
+        increaseBtn.addEventListener('click', () => {
+            quantity++;
+            quantityDisplay.textContent = quantity;
+        });
+
+        // Size selector
+        const sizeOptions = document.querySelectorAll('.size-option');
+        sizeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                sizeOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
+

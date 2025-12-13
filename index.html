@@ -79,8 +79,9 @@
         }
 
         .header-left .header-item:not(.clock) {
-            padding: 0.15em 0.25em 0.15em 0.3em;
+            padding: 0.15em 0.3em;
             margin: -0.15em 2.6em -0.15em -0.3em;
+            width: fit-content;
         }
 
         .header-item:not(.clock)::before {
@@ -95,11 +96,13 @@
             z-index: -1;
         }
 
-        .header-item:not(.clock):hover::before {
+        .header-item:not(.clock):hover::before,
+        .header-item:not(.clock).active::before {
             opacity: 1;
         }
 
-        .header-item:not(.clock):hover {
+        .header-item:not(.clock):hover,
+        .header-item:not(.clock).active {
             color: #000000;
         }
 
@@ -269,6 +272,14 @@
             animation: revealSecond 0.01s forwards;
         }
 
+        .grid-item:hover .grid-item-number .digit:first-child .cover-rectangle {
+            animation: coverFirst 0.01s 0s forwards;
+        }
+
+        .grid-item:hover .grid-item-number .digit:last-child .cover-rectangle {
+            animation: coverSecond 0.01s 0.1s forwards;
+        }
+
         @keyframes revealFirst {
             to {
                 visibility: hidden;
@@ -278,6 +289,24 @@
         @keyframes revealSecond {
             to {
                 visibility: hidden;
+            }
+        }
+
+        @keyframes coverFirst {
+            from {
+                visibility: hidden;
+            }
+            to {
+                visibility: visible;
+            }
+        }
+
+        @keyframes coverSecond {
+            from {
+                visibility: hidden;
+            }
+            to {
+                visibility: visible;
             }
         }
 
@@ -427,20 +456,9 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-left">
-            <div class="header-item">spire</div>
-            <div class="header-item">shop</div>
-            <div class="header-item clock" id="clock">00:00:00</div>
-        </div>
-        <div class="header-right">
-            <div class="header-item">bag</div>
-        </div>
-    </header>
-    
     <main>
         <div class="grid-container">
-            <div class="grid-item"><img src="images/p1.png" alt="p1"><span class="grid-item-number">01</span></div>
+            <div class="grid-item" onclick="window.location.href='p1.html'" style="cursor: pointer;"><img src="images/p1.png" alt="p1"><span class="grid-item-number">01</span></div>
             <div class="grid-item"><img src="images/p2.png" alt="p2"><span class="grid-item-number">02</span></div>
             <div class="grid-item"><img src="images/p3.png" alt="p3"><span class="grid-item-number">03</span></div>
             <div class="grid-item"><img src="images/p4.png" alt="p4"><span class="grid-item-number">04</span></div>
@@ -463,82 +481,8 @@
         <!-- Footer content goes here -->
     </footer>
 
+    <script src="header.js"></script>
     <script> 
-        function setupClockReveal() {
-            const clockElement = document.getElementById('clock');
-            if (!clockElement) return;
-
-            // Delay between each segment in seconds
-            const firstSegmentDelay = 0.08;
-            const secondSegmentDelay = 0.18;
-            const thirdSegmentDelay = 0.40;
-
-
-            // Set up the structure once
-            clockElement.innerHTML = '';
-            
-            const now = new Date();
-            const initialHours = String(now.getHours()).padStart(2, '0');
-            const initialMinutes = String(now.getMinutes()).padStart(2, '0');
-            const initialSeconds = String(now.getSeconds()).padStart(2, '0');
-            
-            // Create HH segment (hours)
-            const hoursSpan = document.createElement('span');
-            hoursSpan.className = 'time-segment hours';
-            hoursSpan.textContent = initialHours;
-            const hoursCover = document.createElement('span');
-            hoursCover.className = 'cover-rectangle';
-            hoursCover.style.animationDelay = `${firstSegmentDelay}s`;
-            hoursSpan.appendChild(hoursCover);
-            clockElement.appendChild(hoursSpan);
-            
-            // Add colon
-            clockElement.appendChild(document.createTextNode(':'));
-            
-            // Create MM segment
-            const minutesSpan = document.createElement('span');
-            minutesSpan.className = 'time-segment minutes';
-            minutesSpan.textContent = initialMinutes;
-            const minutesCover = document.createElement('span');
-            minutesCover.className = 'cover-rectangle';
-            minutesCover.style.animationDelay = `${secondSegmentDelay}s`;
-            minutesSpan.appendChild(minutesCover);
-            clockElement.appendChild(minutesSpan);
-            
-            // Add colon
-            clockElement.appendChild(document.createTextNode(':'));
-            
-            // Create SS segment
-            const secondsSpan = document.createElement('span');
-            secondsSpan.className = 'time-segment seconds';
-            secondsSpan.textContent = initialSeconds;
-            const secondsCover = document.createElement('span');
-            secondsCover.className = 'cover-rectangle';
-            secondsCover.style.animationDelay = `${thirdSegmentDelay}s`;
-            secondsSpan.appendChild(secondsCover);
-            clockElement.appendChild(secondsSpan);
-
-            // Function to update only the text content
-            function updateClock() {
-                const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                
-                // Update text content without rebuilding structure
-                hoursSpan.textContent = hours;
-                minutesSpan.textContent = minutes;
-                secondsSpan.textContent = seconds;
-            }
-
-            // Update clock every second (don't call immediately since we already set initial values)
-            setInterval(updateClock, 1000);
-        }
-
-        // Setup clock reveal on page load
-        window.addEventListener('load', setupClockReveal);
-        setupClockReveal();
-
         // Split numbers into digits and add cover rectangles with stagger delays
         function setupNumberReveal() {
             const gridItems = document.querySelectorAll('.grid-item');
@@ -607,20 +551,54 @@
             gridItems.forEach((gridItem, index) => {
                 const img = gridItem.querySelector('img');
                 if (img) {
-                    setTimeout(() => {
-                        img.classList.add('revealed');
-                    }, index * staggerDelay);
+                    // Reset to hidden state and remove revealed class to ensure clean animation
+                    img.classList.remove('revealed');
+                    img.style.transform = 'translateY(100%)';
+                    
+                    // Use requestAnimationFrame to ensure style is applied before adding revealed class
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            img.classList.add('revealed');
+                            img.style.transform = ''; // Remove inline style to let CSS handle it
+                        }, index * staggerDelay);
+                    });
                 }
             });
         }
 
         // Wrap images first, then trigger image reveal
         wrapImages();
-        window.addEventListener('load', () => {
+        
+        // Function to initialize animations
+        function initAnimations() {
             wrapImages();
-            revealImages();
+            // Small delay to ensure DOM is settled after header load
+            setTimeout(() => {
+                revealImages();
+            }, 50);
+        }
+        
+        // Wait for header to load, then initialize animations
+        let animationsInitialized = false;
+        function tryInitAnimations() {
+            if (!animationsInitialized) {
+                animationsInitialized = true;
+                initAnimations();
+            }
+        }
+        
+        // Listen for header loaded event
+        window.addEventListener('headerLoaded', tryInitAnimations);
+        
+        // Also run on page load as fallback
+        window.addEventListener('load', () => {
+            setTimeout(tryInitAnimations, 100);
         });
-        revealImages();
+        
+        // Fallback if header loads before this script runs
+        if (document.readyState === 'complete') {
+            setTimeout(tryInitAnimations, 150);
+        }
 
         // Position crosshairs at grid intersections
         function positionCrosshairs() {
@@ -747,7 +725,58 @@
         // Setup image hover after images are loaded
         window.addEventListener('load', setupImageHover);
         setupImageHover();
+
+        // Handle number cover rectangles on hover
+        function setupNumberCoverHover() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            
+            gridItems.forEach(gridItem => {
+                const numberElement = gridItem.querySelector('.grid-item-number');
+                if (!numberElement) return;
+                
+                const digits = numberElement.querySelectorAll('.digit');
+                if (digits.length !== 2) return;
+                
+                const firstCover = digits[0].querySelector('.cover-rectangle');
+                const secondCover = digits[1].querySelector('.cover-rectangle');
+                
+                if (!firstCover || !secondCover) return;
+                
+                // On hover, cover the numbers with stagger
+                gridItem.addEventListener('mouseenter', () => {
+                    // Cover first digit immediately
+                    setTimeout(() => {
+                        firstCover.style.visibility = 'visible';
+                    }, 0);
+                    
+                    // Cover second digit after delay
+                    setTimeout(() => {
+                        secondCover.style.visibility = 'visible';
+                    }, 60);
+                });
+                
+                // On unhover, reveal the numbers again with stagger
+                gridItem.addEventListener('mouseleave', () => {
+                    // Hide first digit (0) immediately
+                    setTimeout(() => {
+                        firstCover.style.visibility = 'hidden';
+                    }, 0);
+                    
+                    // Hide second digit (1) after delay
+                    setTimeout(() => {
+                        secondCover.style.visibility = 'hidden';
+                    }, 60);
+                });
+            });
+        }
+
+        // Setup number cover hover after numbers are set up
+        window.addEventListener('load', () => {
+            setTimeout(setupNumberCoverHover, 100);
+        });
+        setTimeout(setupNumberCoverHover, 200);
     </script>
 </body>
 </html>
 
+v
